@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>IronCore Gym</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #fff;
+      color: #222;
+    }
+
+    .container {
+      background-color: #fff;
+      border: 2px solid #d50000;
+      border-radius: 12px;
+      padding: 40px;
+      margin: 60px auto;
+      max-width: 960px;
+      box-shadow: 0 0 30px rgba(213, 0, 0, 0.1);
+    }
+
+    h1 {
+      color: #d50000;
+      font-size: 36px;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    h2 {
+      font-size: 22px;
+      text-align: center;
+      margin-bottom: 30px;
+      color: #444;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 14px;
+      margin: 12px 0;
+      background: #f8f8f8;
+      border: 1px solid #d50000;
+      border-radius: 8px;
+      font-size: 16px;
+      color: #333;
+    }
+
+    button {
+      background-color: #d50000;
+      color: white;
+      border: none;
+      padding: 14px;
+      width: 100%;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      background-color: #b71c1c;
+    }
+
+    .message {
+      margin-top: 10px;
+      color: green;
+      text-align: center;
+    }
+
+    .welcome {
+      font-size: 24px;
+      color: #d50000;
+      margin-bottom: 25px;
+      text-align: center;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .card {
+      background: #ffe5e5;
+      padding: 20px;
+      border-left: 5px solid #d50000;
+      border-radius: 10px;
+      transition: 0.3s;
+    }
+
+    .card:hover {
+      background: #ffd6d6;
+    }
+
+    .card a {
+      text-decoration: none;
+      color: #222;
+      font-weight: bold;
+      display: block;
+      font-size: 16px;
+    }
+
+    .logout {
+      margin-top: 30px;
+      background: #444;
+      width: 200px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    @media (max-width: 900px) {
+      .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    label {
+      font-weight: bold;
+      margin-top: 8px;
+      display: block;
+    }
+
+    .access-section {
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="mainContainer">
+    <h1>🏋️ IronCore Gym</h1>
+    <h2>Member Login</h2>
+    <input type="text" id="userid" placeholder="Username" required />
+    <input type="password" id="password" placeholder="Password" required />
+    <button onclick="login()">Login</button>
+    <div class="message" id="message"></div>
+  </div>
+
+  <script>
+    let users = {
+      john: { password: "john123", plans: true, videos: false },
+      emma: { password: "emma123", plans: false, videos: true },
+      alex: { password: "alex123", plans: true, videos: true },
+      admin: { password: "admin123", isAdmin: true }
+    };
+
+    function login() {
+      const user = document.getElementById("userid").value.trim().toLowerCase();
+      const pass = document.getElementById("password").value;
+
+      if (users[user] && users[user].password === pass) {
+        localStorage.setItem("loggedIn", "true");
+        localStorage.setItem("username", user);
+        localStorage.setItem("isAdmin", users[user].isAdmin ? "true" : "false");
+        users[user].isAdmin ? showAdminPanel() : showUserDashboard(user);
+      } else {
+        document.getElementById("message").textContent = "Invalid username or password!";
+      }
+    }
+
+    function logout() {
+      localStorage.clear();
+      showLoginForm();
+    }
+
+    function showLoginForm() {
+      const container = document.getElementById("mainContainer");
+      container.innerHTML = `
+        <h1>🏋️ IronCore Gym</h1>
+        <h2>Member Login</h2>
+        <input type="text" id="userid" placeholder="Username" required />
+        <input type="password" id="password" placeholder="Password" required />
+        <button onclick="login()">Login</button>
+        <div class="message" id="message"></div>
+      `;
+    }
+
+    function showUserDashboard(user) {
+      const u = users[user];
+      let features = "";
+
+      if (u.plans) {
+        features += `<div class="card"><a href="#">📋 Workout Plans</a></div>`;
+      }
+      if (u.videos) {
+        features += `<div class="card"><a href="#">🎥 Workout Videos</a></div>`;
+      }
+
+      const container = document.getElementById("mainContainer");
+      container.innerHTML = `
+        <h1>🏋️ IronCore Gym</h1>
+        <p class="welcome">Welcome, ${capitalize(user)}!</p>
+        <div class="dashboard-grid">${features}</div>
+        <button class="logout" onclick="logout()">🚪 Logout</button>
+      `;
+    }
+
+    function showAdminPanel() {
+      const container = document.getElementById("mainContainer");
+      let userOptions = Object.keys(users)
+        .filter(u => !users[u].isAdmin)
+        .map(u => `<option value="${u}">${capitalize(u)}</option>`).join("");
+
+      let accessList = Object.keys(users).filter(u => !users[u].isAdmin).map(u => {
+        return `
+          <div class="card">
+            <strong>${capitalize(u)}</strong><br/>
+            <label>Workout Plans:
+              <input type="checkbox" onchange="toggleAccess('${u}', 'plans')" ${users[u].plans ? "checked" : ""}/>
+            </label>
+            <label>Workout Videos:
+              <input type="checkbox" onchange="toggleAccess('${u}', 'videos')" ${users[u].videos ? "checked" : ""}/>
+            </label>
+          </div>
+        `;
+      }).join("");
+
+      container.innerHTML = `
+        <h1>🛠️ Admin Panel</h1>
+        <p class="welcome">Welcome, Admin!</p>
+
+        <div class="dashboard-grid">
+          <div class="card">
+            <h3>Add New User</h3>
+            <input type="text" id="newUser" placeholder="Username" />
+            <input type="password" id="newPass" placeholder="Password" />
+            <label><input type="checkbox" id="newPlans" /> Allow Workout Plans</label>
+            <label><input type="checkbox" id="newVideos" /> Allow Workout Videos</label>
+            <button onclick="addUser()">Add User</button>
+          </div>
+
+          <div class="card">
+            <h3>Modify User Password</h3>
+            <select id="modifyUser">${userOptions}</select>
+            <input type="password" id="modifyPass" placeholder="New Password" />
+            <button onclick="modifyUser()">Update Password</button>
+          </div>
+
+          <div class="card">
+            <h3>Delete User</h3>
+            <select id="deleteUser">${userOptions}</select>
+            <button onclick="deleteUser()">Delete User</button>
+          </div>
+        </div>
+
+        <h2 class="access-section">Manage Access</h2>
+        <div class="dashboard-grid">${accessList}</div>
+        <button class="logout" onclick="logout()">🚪 Logout</button>
+      `;
+    }
+
+    function toggleAccess(user, feature) {
+      users[user][feature] = !users[user][feature];
+      showAdminPanel();
+    }
+
+    function addUser() {
+      const newUser = document.getElementById("newUser").value.trim().toLowerCase();
+      const newPass = document.getElementById("newPass").value;
+      const newPlans = document.getElementById("newPlans").checked;
+      const newVideos = document.getElementById("newVideos").checked;
+
+      if (!newUser || !newPass || users[newUser]) {
+        alert("Invalid input or user already exists.");
+        return;
+      }
+
+      users[newUser] = {
+        password: newPass,
+        plans: newPlans,
+        videos: newVideos
+      };
+
+      alert("User added successfully!");
+      showAdminPanel();
+    }
+
+    function modifyUser() {
+      const selectedUser = document.getElementById("modifyUser").value;
+      const newPass = document.getElementById("modifyPass").value;
+
+      if (selectedUser && newPass) {
+        users[selectedUser].password = newPass;
+        alert("Password updated!");
+        showAdminPanel();
+      }
+    }
+
+    function deleteUser() {
+      const selectedUser = document.getElementById("deleteUser").value;
+      if (confirm(`Are you sure you want to delete user "${selectedUser}"?`)) {
+        delete users[selectedUser];
+        alert("User deleted!");
+        showAdminPanel();
+      }
+    }
+
+    function capitalize(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    window.onload = () => {
+      if (localStorage.getItem("loggedIn") === "true") {
+        const user = localStorage.getItem("username");
+        const isAdmin = localStorage.getItem("isAdmin") === "true";
+        isAdmin ? showAdminPanel() : showUserDashboard(user);
+      }
+    };
+  </script>
+</body>
+</html>
