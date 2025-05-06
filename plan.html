@@ -1,0 +1,226 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>IronCore Gym - Personalized Workout Plans</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Montserrat', sans-serif;
+    }body {
+  margin: 0;
+  padding: 0;
+  background: #fff;
+  color: #222;
+}
+
+.container {
+  max-width: 1000px;
+  margin: 50px auto;
+  padding: 30px;
+  border-radius: 12px;
+  background: #fff;
+  border: 2px solid #d50000;
+  box-shadow: 0 0 25px rgba(213, 0, 0, 0.1);
+}
+
+h1 {
+  text-align: center;
+  color: #d50000;
+  margin-bottom: 20px;
+  font-size: 38px;
+}
+
+.filter-section {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 40px;
+}
+
+.filter-section select {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+
+.plan-section {
+  display: none;
+  margin-bottom: 30px;
+  background-color: #fff3f3;
+  padding: 25px;
+  border-radius: 10px;
+  border-left: 5px solid #d50000;
+}
+
+.plan-section.active {
+  display: block;
+}
+
+.plan-title {
+  color: #b71c1c;
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.plan-summary {
+  font-size: 16px;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.plan-details {
+  line-height: 1.6;
+  font-size: 16px;
+}
+
+.plan-details ul {
+  margin-top: 10px;
+  padding-left: 20px;
+}
+
+.back {
+  display: block;
+  margin: 30px auto 0;
+  width: 200px;
+  text-align: center;
+  background: #d50000;
+  color: white;
+  padding: 12px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background 0.2s;
+}
+
+.back:hover {
+  background: #b71c1c;
+}
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Personalized Workout Plans</h1><div class="filter-section">
+  <select id="days">
+    <option value="">Select Days/Week</option>
+    <option value="3">3 Days</option>
+    <option value="5">5 Days</option>
+    <option value="6">6 Days</option>
+  </select>
+  <select id="goal">
+    <option value="">Select Goal</option>
+    <option value="beginner">Beginner</option>
+    <option value="fatloss">Fat Loss</option>
+    <option value="muscle">Muscle Gain</option>
+    <option value="home">Home Workout</option>
+  </select>
+</div>
+
+<div id="plan-container"></div>
+
+<a href="index.html" class="back">Back to Dashboard</a>
+
+  </div>  <script>
+    const daysSelect = document.getElementById("days");
+    const goalSelect = document.getElementById("goal");
+    const planContainer = document.getElementById("plan-container");
+
+    const defaultPlan = (goal, days) => ({
+      title: `${goal.charAt(0).toUpperCase() + goal.slice(1)} Plan (${days} Days/Week)`,
+      summary: `Customized workout for your ${goal} goal with ${days} sessions a week.`,
+      details: Array.from({length: parseInt(days)}, (_, i) => `Day ${i + 1}: Mix of strength, cardio, and mobility workouts for ${goal}`),
+      tip: "Stay consistent and adjust intensity based on your progress."
+    });
+
+    const workoutPlans = {
+      beginner: {
+        3: {
+          title: "Beginner Plan (3 Days/Week)",
+          summary: "A simple full-body routine for beginners focusing on form and consistency.",
+          details: [
+            "Day 1: Full Body Strength - squats, pushups, dumbbell rows, planks",
+            "Day 2: Cardio + Core - brisk walking, jump rope, crunches, leg raises",
+            "Day 3: Upper Body Focus - shoulder press, bicep curls, dips, chest fly"
+          ],
+          tip: "Focus on consistency and proper form to avoid injuries."
+        }
+      },
+      fatloss: {
+        5: {
+          title: "Fat Loss Plan (5 Days/Week)",
+          summary: "A high-energy plan with HIIT and strength to shred fat and boost metabolism.",
+          details: [
+            "Day 1: HIIT + Abs - burpees, high knees, bicycle crunches, plank holds",
+            "Day 2: Cardio Strength Combo - kettlebell swings, mountain climbers, pushups",
+            "Day 3: Upper Body - bench press, pull-ups, dumbbell curls, shoulder press",
+            "Day 4: Lower Body - squats, lunges, hamstring curls, calf raises",
+            "Day 5: Stretch & Recovery - yoga, foam rolling, deep stretching"
+          ],
+          tip: "Pair this with a healthy diet and adequate hydration for best results."
+        }
+      },
+      muscle: {
+        6: {
+          title: "Muscle Gain Plan (6 Days/Week)",
+          summary: "Structured for hypertrophy with focused muscle group splits.",
+          details: [
+            "Day 1: Chest & Triceps - bench press, cable fly, dips, tricep pushdowns",
+            "Day 2: Back & Biceps - deadlifts, pull-ups, rows, curls",
+            "Day 3: Legs & Core - squats, leg press, crunches, Russian twists",
+            "Day 4: Shoulders & Arms - overhead press, lateral raises, hammer curls",
+            "Day 5: Chest & Abs - incline press, decline crunches, flutter kicks",
+            "Day 6: Full Body Power - clean & press, sled push, compound circuits"
+          ],
+          tip: "Track progress and focus on increasing weights over time."
+        }
+      },
+      home: {
+        5: {
+          title: "Home Workout Plan (No Equipment)",
+          summary: "Bodyweight workouts you can do anywhere.",
+          details: [
+            "Day 1: Full Body - pushups, squats, jumping jacks, planks",
+            "Day 2: Lower Body - glute bridges, lunges, wall sit",
+            "Day 3: Core & Mobility - crunches, leg raises, cat-cow, child’s pose",
+            "Day 4: HIIT - jump squats, mountain climbers, fast feet",
+            "Day 5: Stretch & Recovery - yoga flow and foam rolling"
+          ],
+          tip: "Stay consistent. Intensity matters more than equipment."
+        }
+      }
+    };
+
+    function showPlan() {
+      const goal = goalSelect.value;
+      const days = daysSelect.value;
+      planContainer.innerHTML = "";
+
+      if (goal && days) {
+        const plan = (workoutPlans[goal] && workoutPlans[goal][days]) ? workoutPlans[goal][days] : defaultPlan(goal, days);
+
+        const section = document.createElement("div");
+        section.classList.add("plan-section", "active");
+
+        section.innerHTML = `
+          <div class="plan-title">${plan.title}</div>
+          <div class="plan-summary">${plan.summary}</div>
+          <div class="plan-details">
+            <ul>${plan.details.map(item => `<li>${item}</li>`).join('')}</ul>
+            <p>${plan.tip}</p>
+          </div>
+        `;
+
+        planContainer.appendChild(section);
+      } else {
+        planContainer.innerHTML = '<p style="text-align:center">Please select days and goal to view a plan.</p>';
+      }
+    }
+
+    daysSelect.addEventListener("change", showPlan);
+    goalSelect.addEventListener("change", showPlan);
+  </script></body>
+</html>
